@@ -243,6 +243,27 @@ p_{1}=p_{2}+\left(\begin{array}{c}
 \end_inset
 
 и т.д.
+ 
+\end_layout
+
+\begin_layout Standard
+Затем 
+\begin_inset Formula 
+\begin{align*}
+u_{1}= & \cos\theta_{0}\dot{x}+\sin\theta_{0}\dot{y}
+\end{align*}
+
+\end_inset
+
+и 
+\begin_inset Formula 
+\[
+\phi=\arctan\frac{\dot{\theta}_{0}}{u_{1}}
+\]
+
+\end_inset
+
+
 \end_layout
 
 \end_body
