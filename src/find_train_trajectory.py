@@ -31,61 +31,66 @@ def fix_conitnuity(arr):
             arr[i] -= 2*np.pi
 
 
-def interpolate_waypoints(waypts):
+def interpolate_waypoints(waypts, k=5):
     waypts = np.array(waypts)
-    bzr = interpolate(waypts, 7)
+    bzr = interpolate(waypts, k)
     sp = bezier2bspline(bzr)
     return sp
 
 
-def find_trajectory(waypts):
+def find_trajectory(waypts, ntrailers, reverse=False):
     R'''
         TODO: implement for arbitrary trailers
     '''
+    assert ntrailers > 0
+    delta = np.pi if reverse else 0
+
     sp = interpolate_waypoints(waypts)
     t = np.linspace(sp.t[0], sp.t[-1], 1000)
+    trailers = []
 
-    p2 = sp(t)
-    v2 = sp(t, 1)
-    theta2 = np.arctan2(v2[:,1], v2[:,0]) + np.pi
-    fix_conitnuity(theta2)
+    # train N
+    p = sp(t, 0)
+    v = sp(t, 1)
+    theta = np.arctan2(v[:,1], v[:,0]) + delta
+    fix_conitnuity(theta)
+    trailer = (sp, p, v, theta)
+    trailers += [trailer]
 
-    p1 = p2 + np.array([np.cos(theta2), np.sin(theta2)]).T
-    fp1 = make_interp_spline(t, p1, 5)
-    v1 = fp1(t, 1)
-    theta1 = np.arctan2(v1[:,1], v1[:,0]) + np.pi
-    fix_conitnuity(theta1)
+    for i in range(1, ntrailers):
+        prev_trailer = trailers[-1]
+        _, prev_p, prev_v, prev_theta = prev_trailer
+        p = prev_p + np.array([np.cos(prev_theta), np.sin(prev_theta)]).T
+        sp =  make_interp_spline(t, p, 5)
+        v = sp(t, 1)
+        theta = np.arctan2(v[:,1], v[:,0]) + delta
+        fix_conitnuity(theta)
+        trailer = (sp, p, v, theta)
+        trailers += [trailer]
 
-    p0 = p1 + np.array([np.cos(theta1), np.sin(theta1)]).T
-    fp0 = make_interp_spline(t, p0, 5)
-    v0 = fp0(t, 1)
-    theta0 = np.arctan2(v0[:,1], v0[:,0]) + np.pi
-    fix_conitnuity(theta0)
-
-    u1 = np.cos(theta0) * v0[:,0] + np.sin(theta0) * v0[:,1]
-    ftheta0 = make_interp_spline(t, theta0, 5)
-    dtheta0 = ftheta0(t, 1)
-    phi = np.arctan2(dtheta0, u1) + np.pi
+    trailers = trailers[::-1]
+    _, p, v, theta = trailers[0]
+    
+    u1 = np.cos(theta) * v[:,0] + np.sin(theta) * v[:,1]
+    stheta = make_interp_spline(t, theta, 5)
+    dtheta = stheta(t, 1)
+    phi = np.arctan2(dtheta, u1) + delta
     fix_conitnuity(phi)
     fphi = make_interp_spline(t, phi, 5)
     u2 = fphi(t, 1)
 
-    return {
-        'ntrailers': 3,
-        't': t,
-        'x0': p0[:,0],
-        'y0': p0[:,1],
-        'x1': p1[:,0],
-        'y1': p1[:,1],
-        'x2': p2[:,0],
-        'y2': p2[:,1],
-        'theta0': theta0,
-        'theta1': theta1,
-        'theta2': theta2,
-        'phi': phi,
-        'u1': u1,
-        'u2': u2
-    }
+    keys = ['ntrailers', 't', 'phi', 'u1', 'u2'] + \
+        ['x%d' % i for i in range(ntrailers)] + \
+        ['y%d' % i for i in range(ntrailers)] + \
+        ['theta%d' % i for i in range(ntrailers)]
+    
+    values = [ntrailers, t, phi, u1, u2] + \
+        [trailer[1][:,0] for trailer in trailers] + \
+        [trailer[1][:,1] for trailer in trailers] + \
+        [trailer[3] for trailer in trailers]
+
+    traj = dict(zip(keys, values))
+    return traj
 
 
 def test_trajectory(traj):
@@ -96,12 +101,9 @@ def test_trajectory(traj):
     x0 = traj['x0']
     y0 = traj['y0']
     phi = traj['phi']
-    theta0 = traj['theta0']
-    theta1 = traj['theta1']
-    theta2 = traj['theta2']
+    thetas = np.array([traj['theta%d' % i] for i in range(ntrailers)])
     u1 = traj['u1']
     u2 = traj['u2']
-    npts = len(t)
     fu = make_interp_spline(t, np.array([u1, u2]).T, k=3)
 
     dynamics = Dynamics(ntrailers)
@@ -110,9 +112,7 @@ def test_trajectory(traj):
         u = fu(t)
         return dynamics.rhs(*state, *u)
 
-    state0 = [
-        x0[0], y0[0], phi[0], theta0[0], theta1[0], theta2[0]
-    ]
+    state0 = [x0[0], y0[0], phi[0]] + list(thetas[:,0])
     _, state = integrate(rhs, state0, [t[0], t[-1]], step=t[-1]/1000)
 
     plt.gca().set_prop_cycle(None)
@@ -125,8 +125,6 @@ def test_trajectory(traj):
 if __name__ == '__main__':
     from misc.format.serialize import save
 
-    print(time() - t0)
-
     traj = find_trajectory([
         [0, 0],
         [3, 0],
@@ -136,25 +134,12 @@ if __name__ == '__main__':
         [-3, -3],
         [-3, 0],
         [0, 0],
-    ])
+    ], 4)
     save('data/traj.npz', traj)
-
-    print(time() - t0)
-
     test_trajectory(traj)
 
-    print(time() - t0)
-
-    x0 = traj['x0']
-    y0 = traj['y0']
-    x1 = traj['x1']
-    y1 = traj['y1']
-    x2 = traj['x2']
-    y2 = traj['y2']
-
     plt.axis('equal')
-    plt.plot(x0, y0, 'o', color='blue', alpha=0.1)
-    plt.plot(x1, y1, 'o', color='green', alpha=0.1)
-    plt.plot(x2, y2, 'o', color='pink', alpha=0.1)
+    for i in range(traj['ntrailers']):
+        plt.plot(traj['x%d' % i], traj['y%d' % i], '.', alpha=0.1)
     plt.grid(True)
     plt.show()
