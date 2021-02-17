@@ -1,0 +1,6 @@
+[submodule "bezier"]
+  path = src/bezier
+  url = git@github.com:msurov/bezier.git
+[submodule "misc"]
+  path = src/misc
+  url = git@gitlab.arrival.co:msurov/misc.git

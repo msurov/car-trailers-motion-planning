@@ -1,0 +1,4 @@
+data/*
+math/*.lyx~
+math/*.lyx#
+*.pyc
