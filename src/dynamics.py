@@ -29,14 +29,16 @@ class Dynamics:
         x = ca.SX.sym('x')
         y = ca.SX.sym('y')
         phi = ca.SX.sym('phi')
-        thetas = [ca.SX.sym('theta%d' %i) for i in range(ntrailers)]
+        thetas = ca.SX.sym('theta', ntrailers)
+        u = ca.SX.sym('u', 2)
 
         self.ntrailers = ntrailers
-        self.state = [x,y,phi] + thetas
+        self.state = ca.vertcat(x, y, phi, thetas)
         self.x = x
         self.y = y
         self.phi = phi
         self.thetas = thetas
+        self.u = u
 
         g1 = ca.SX.zeros((nstates, 1))
         g1[0] = ca.cos(thetas[0])
@@ -54,10 +56,7 @@ class Dynamics:
 
         self.g = ca.horzcat(g1, g2)
         self.f = ca.SX.zeros((nstates, 1))
-
-        u1 = ca.SX.sym('u1')
-        u2 = ca.SX.sym('u2')
-        self.rhs = ca.Function('RHS', [x, y, phi] + thetas + [u1, u2], [g1 * u1 + g2 * u2])
+        self.rhs = ca.Function('RHS', [x, y, phi] + thetas.elements() + u.elements(), [self.g @ u])
 
 
     def trailer_position(self, i):

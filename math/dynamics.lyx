@@ -120,6 +120,49 @@
 \end_inset
 
 -го прицепа 
+\begin_inset Formula $\theta_{-1}=\arctan\frac{\dot{y}_{-1}}{\dot{x}_{-1}}=\arctan\frac{\dot{y}_{0}-\cos\theta_{0}\dot{\theta}_{0}}{\dot{x}_{0}-\sin\theta_{0}\dot{\theta}_{0}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\dot{x}_{-1}=\dot{x}_{0}-\sin\theta_{0}\dot{\theta}_{0}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\dot{y}_{-1}=\dot{y}_{0}-\cos\theta_{0}\dot{\theta}_{0}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+—
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\phi=\arctan\frac{\dot{\theta}_{0}}{u_{1}}=\arctan\frac{\dot{\theta}_{0}}{\dot{x}_{0}\cos\theta_{0}+\dot{y}_{0}\sin\theta_{0}}=$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\frac{\dot{\theta}_{0}}{\dot{x}_{0}\cos\theta_{0}+\dot{y}_{0}\sin\theta_{0}}\sim\frac{\dot{y}_{0}-\cos\theta_{0}\dot{\theta}_{0}}{\dot{x}_{0}-\sin\theta_{0}\dot{\theta}_{0}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\dot{\theta}_{0}\dot{x}_{0}\left(1+\cos^{2}\theta_{0}\right)-\left(\dot{\theta}_{0}^{2}+\dot{y}_{0}^{2}\right)\sin\theta_{0}=\left(\dot{x}_{0}-\dot{\theta}_{0}\sin\theta_{0}\right)\dot{y}_{0}\cos\theta_{0}$
+\end_inset
+
+
 \begin_inset Formula 
 \begin{align*}
 p_{i} & =\left(\begin{array}{c}
@@ -137,36 +180,18 @@ p_{i} & =p_{i+1}+\left(\begin{array}{c}
 и его скорость 
 \begin_inset Formula 
 \[
-\dot{p}_{i}=\left(\begin{array}{c}
-\dot{x}+\sum_{j=1}^{i}\sin\theta_{j}\dot{\theta}_{j}\\
-\dot{y}-\sum_{j=1}^{i}\cos\theta_{j}\dot{\theta}_{j}
-\end{array}\right)
+\dot{p}_{i}=\dot{p}_{i+1}+\left(\begin{array}{c}
+-\sin\theta_{i+1}\\
+\cos\theta_{i+1}
+\end{array}\right)\dot{\theta}_{i+1}
 \]
-
-\end_inset
-
-Для последнего прицепа
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{align*}
-p_{1} & =\left(\begin{array}{c}
-x-\cos\theta_{1}\\
-y-\sin\theta_{1}
-\end{array}\right)\\
-p_{2} & =\left(\begin{array}{c}
-x-\cos\theta_{1}-\cos\theta_{2}\\
-y-\sin\theta_{1}-\sin\theta_{2}
-\end{array}\right)
-\end{align*}
 
 \end_inset
 
 Вычисляем 
 \begin_inset Formula 
 \[
-\frac{\dot{y}_{i}}{\dot{x}_{i}}=\tan\theta_{i}
+\tan\theta_{i}=\frac{\dot{y}_{i}}{\dot{x}_{i}}
 \]
 
 \end_inset
@@ -187,18 +212,19 @@ y-\sin\theta_{1}-\sin\theta_{2}
 \begin_inset Formula 
 \begin{align*}
 \theta_{2} & =\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}\\
+\dot{\theta}_{2} & =\frac{\dot{x}_{2}\ddot{y}_{2}-\dot{y}_{2}\ddot{x}_{2}}{\dot{x}_{2}^{2}+\dot{y}_{2}^{2}}=\frac{\dot{p}\times\ddot{p}}{\dot{p}\cdot\dot{p}}\\
+\\
 \theta_{1} & =\arctan\frac{\dot{y}_{1}}{\dot{x}_{1}}\\
- & =\arctan\frac{\dot{y}_{2}+\sin\theta_{2}}{\dot{x}_{2}+\cos\theta_{2}}\\
- & =\arctan\frac{\dot{y}_{2}+\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}{\dot{x}_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}\\
+ & =\arctan\frac{\dot{y}_{2}-\sin\theta_{2}\dot{\theta}_{2}}{\dot{x}_{2}+\cos\theta_{2}\dot{\theta}_{2}}\\
+ & =\arctan\frac{\dot{y}_{2}-\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}\frac{\ddot{y}_{2}\dot{x}_{2}-\dot{y}_{2}\ddot{x}_{2}}{\dot{x}_{2}^{2}+\dot{y}_{2}^{2}}}{\dot{x}_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}\frac{\ddot{y}_{2}\dot{x}_{2}-\dot{y}_{2}\ddot{x}_{2}}{\dot{x}_{2}^{2}+\dot{y}_{2}^{2}}}\\
 x & =x_{1}+\cos\theta_{1}\\
  & =x_{2}+\cos\theta_{2}+\cos\theta_{1}\\
- & =x_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}+\cos\arctan\frac{\dot{y}_{2}+\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}{\dot{x}_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}\\
+ & =x_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}+\cos\arctan\frac{\dot{y}_{2}-\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}\frac{\ddot{y}_{2}\dot{x}_{2}-\dot{y}_{2}\ddot{x}_{2}}{\dot{x}_{2}^{2}+\dot{y}_{2}^{2}}}{\dot{x}_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}\frac{\ddot{y}_{2}\dot{x}_{2}-\dot{y}_{2}\ddot{x}_{2}}{\dot{x}_{2}^{2}+\dot{y}_{2}^{2}}}\\
 y & =y_{1}+\sin\theta_{1}\\
  & =y_{2}+\sin\theta_{2}+\sin\theta_{1}\\
- & =y_{2}+\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}+\sin\arctan\frac{\dot{y}_{2}+\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}{\dot{x}_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}\\
-\theta_{0} & =\arctan\frac{y}{x}\\
- & =\arctan\frac{y_{2}+\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}+\sin\arctan\frac{\dot{y}_{2}+\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}{\dot{x}_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}}{x_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}+\cos\arctan\frac{\dot{y}_{2}+\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}{\dot{x}_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}}}\\
-\phi & =\arctan\frac{\dot{\theta}_{0}}{u_{1}}=\arctan\frac{\cos\theta_{0}\dot{\theta}_{0}}{\dot{x}}
+ & =y_{2}+\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}+\sin\arctan\frac{\dot{y}_{2}-\sin\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}\frac{\ddot{y}_{2}\dot{x}_{2}-\dot{y}_{2}\ddot{x}_{2}}{\dot{x}_{2}^{2}+\dot{y}_{2}^{2}}}{\dot{x}_{2}+\cos\arctan\frac{\dot{y}_{2}}{\dot{x}_{2}}\frac{\ddot{y}_{2}\dot{x}_{2}-\dot{y}_{2}\ddot{x}_{2}}{\dot{x}_{2}^{2}+\dot{y}_{2}^{2}}}\\
+etc\\
+\\
 \end{align*}
 
 \end_inset
@@ -261,6 +287,225 @@ u_{1}= & \cos\theta_{0}\dot{x}+\sin\theta_{0}\dot{y}
 \phi=\arctan\frac{\dot{\theta}_{0}}{u_{1}}
 \]
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Переход из точки в точку
+\end_layout
+
+\begin_layout Standard
+Заданы начальное и конечное состояния системы в координатах 
+\begin_inset Formula $x,y,\phi,\theta_{1},\dots$
+\end_inset
+
+.
+ Нужно выразить их через выход 
+\begin_inset Formula $x_{n},y_{n}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\xout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Вычисляем 
+\begin_inset Formula $\theta_{n}=\arctan\frac{\dot{y}_{n}}{\dot{x}_{n}},\dot{\theta}_{n}=\frac{\partial\theta_{n}}{\partial\dot{x}_{n}}\ddot{x}_{n}+\frac{\partial\theta_{n}}{\partial\dot{y}_{n}}\ddot{y}_{n}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Вычисляем 
+\begin_inset Formula $v_{n-1}=v_{n}+\left(\begin{array}{c}
+-\sin\theta_{n}\\
+\cos\theta_{n}
+\end{array}\right)\dot{\theta}_{n}$
+\end_inset
+
+, подставив полученное ранее 
+\begin_inset Formula $\dot{\theta}_{n}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Вычисляем 
+\begin_inset Formula $\theta_{n-1}=\arctan\frac{\dot{y}_{n-1}}{\dot{x}_{n-1}},$
+\end_inset
+
+ и 
+\begin_inset Formula $\dot{\theta}_{n-1}$
+\end_inset
+
+ аналогично
+\end_layout
+
+\begin_layout Enumerate
+Повторяем пункты 2,3 для 
+\begin_inset Formula $i=n-1..0$
+\end_inset
+
+, в итоге получим выражения для 
+\begin_inset Formula $\theta_{n},\theta_{n-1},\dots,\theta_{0}$
+\end_inset
+
+ как функции 
+\begin_inset Formula $x_{n},y_{n}$
+\end_inset
+
+ и их производных, а также 
+\begin_inset Formula $\dot{\theta}_{0}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Вычисляем 
+\begin_inset Formula 
+\begin{align*}
+x_{n} & =x-\sum_{j=1}^{n}\cos\theta_{j}\\
+y_{n} & =y-\sum_{j=1}^{n}\sin\theta_{j}
+\end{align*}
+
+\end_inset
+
+оно связывает желаемое положение тягача 
+\begin_inset Formula $x,y$
+\end_inset
+
+ с выходом 
+\begin_inset Formula $x_{n},y_{n}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\phi=$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Separator plain
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\tan\phi=\frac{\dot{\theta}_{0}}{u_{1}}=\frac{\dot{\theta}_{0}}{\cos\theta_{0}\dot{x}+\sin\theta_{0}\dot{y}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\theta_{n}=\theta_{n}\left(v_{n}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\dot{\theta}_{n}=\dot{\theta}_{n}\left(v_{n},\dot{v}_{n}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $v_{n-1}=v_{n-1}\left(v_{n},\dot{v}_{n}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\theta_{n-1}=\theta_{n-1}\left(v_{n},\ddot{v}_{n}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\theta_{0}=\theta_{0}\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n\right)}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\dot{\theta}_{0}=\dot{\theta}_{0}\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n+1\right)}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $v_{0}=v_{0}\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n\right)}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $u_{1}=u_{1}\left(\theta_{0},v_{0}\right)=u_{1}\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n\right)}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\phi=\phi\left(\dot{\theta}_{0},u_{1}\right)=\phi\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n+1\right)}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+—
+\end_layout
+
+\begin_layout Standard
+получилось всего 
+\begin_inset Formula $n+1$
+\end_inset
+
+ уравнение и 
+\begin_inset Formula $2\left(n+1\right)$
+\end_inset
+
+ неизвестных, т.е.
+ лишних 
+\begin_inset Formula $n+1$
+\end_inset
+
+ уравнений
+\end_layout
+
+\begin_layout Standard
+что если задать 
+\begin_inset Formula $\left\Vert v_{0}\right\Vert ,\left\Vert v_{1}\right\Vert ,\dots,\left\Vert v_{n}\right\Vert $
 \end_inset
 
 

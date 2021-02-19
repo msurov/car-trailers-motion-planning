@@ -45,7 +45,7 @@ def find_trajectory(waypts, ntrailers, reverse=False):
     assert ntrailers > 0
     delta = np.pi if reverse else 0
 
-    sp = interpolate_waypoints(waypts)
+    sp = interpolate_waypoints(waypts, 7)
     t = np.linspace(sp.t[0], sp.t[-1], 1000)
     trailers = []
 
@@ -125,16 +125,15 @@ def test_trajectory(traj):
 if __name__ == '__main__':
     from misc.format.serialize import save
 
-    traj = find_trajectory([
+    waypoints = [
         [0, 0],
         [3, 0],
         [3, 3],
         [0, 3],
-        [0, -3],
-        [-3, -3],
-        [-3, 0],
         [0, 0],
-    ], 4)
+    ]
+
+    traj = find_trajectory(waypoints, 1, True)
     save('data/traj.npz', traj)
     test_trajectory(traj)
 
