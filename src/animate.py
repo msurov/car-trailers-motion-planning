@@ -202,9 +202,13 @@ class Car:
 
 
 class CarTrailers:
-    def __init__(self, ntrailers):
-        self.car = Car(trailers_colors[0])
-        self.trailers = [Trailer(trailers_colors[i]) for i in range(1, ntrailers)]
+    def __init__(self, ntrailers, grayed=False):
+        if grayed:
+            self.car = Car('gray')
+            self.trailers = [Trailer('gray') for i in range(1, ntrailers)]
+        else:
+            self.car = Car(trailers_colors[0])
+            self.trailers = [Trailer(trailers_colors[i]) for i in range(1, ntrailers)]
         self.move(0, 0, 0, np.zeros(ntrailers))
     
     def get_trailer_pose(self, i, x0, y0, phi, thetas):
@@ -237,13 +241,25 @@ def animate(traj):
     phi = traj['phi']
     thetas = np.array([traj['theta%d' % i] for i in range(ntrailers)]).T
     npts = len(t)
-    xs = [traj['x%d' % i] for i in range(ntrailers)]
-    ys = [traj['y%d' % i] for i in range(ntrailers)]
 
-    xmin = np.min(np.concatenate(xs)) - 1
-    xmax = np.max(np.concatenate(xs)) + 1
-    ymin = np.min(np.concatenate(ys)) - 1
-    ymax = np.max(np.concatenate(ys)) + 1
+    xs = []
+    ys = []
+
+    kx = 'x0'
+    ky = 'y0'
+    i = 0
+
+    while kx in traj:
+        xs += [traj[kx]]
+        ys += [traj[ky]]
+        i = i + 1
+        kx = 'x%d' % i
+        ky = 'y%d' % i
+
+    xmin = np.min(np.concatenate(xs)) - ntrailers
+    xmax = np.max(np.concatenate(xs)) + ntrailers
+    ymin = np.min(np.concatenate(ys)) - ntrailers
+    ymax = np.max(np.concatenate(ys)) + ntrailers
 
     fig = plt.figure(figsize=(12,9))
     plt.axis('equal')
@@ -253,13 +269,23 @@ def animate(traj):
     ax.set_xlim([xmin, xmax])
     ax.set_ylim([ymin, ymax])
 
-    for i in range(ntrailers):
+    for i in range(len(xs)):
         plt.plot(xs[i], ys[i], '.', alpha=0.1, color=trailers_colors[i])
 
     pathes = cartrailers.patches()
     cartrailers.move(x0[0], y0[0], phi[0], thetas[0,:])
 
     for p in pathes:
+        ax.add_patch(p)
+
+    cartrailers0 = CarTrailers(ntrailers, grayed=True)
+    cartrailers0.move(x0[0], y0[0], phi[0], thetas[0,:])
+    for p in cartrailers0.patches():
+        ax.add_patch(p)
+
+    cartrailersf = CarTrailers(ntrailers, grayed=True)
+    cartrailersf.move(x0[-1], y0[-1], phi[-1], thetas[-1,:])
+    for p in cartrailersf.patches():
         ax.add_patch(p)
 
     def init():
@@ -273,13 +299,13 @@ def animate(traj):
         return cartrailers.patches()
 
     anim = animation.FuncAnimation(fig, update, init_func=init, frames=npts, blit=True)
-    Writer = animation.writers['ffmpeg']
-    writer = Writer(fps=60, metadata=dict(artist='Maksim Surov'), bitrate=400*60)
-    anim.save('data/anim.mp4', writer)
-    # plt.show()
+    # Writer = animation.writers['ffmpeg']
+    # writer = Writer(fps=60, metadata=dict(artist='Maksim Surov'), bitrate=400*60)
+    # anim.save('data/anim.mp4', writer)
+    plt.show()
 
 
 if __name__ == '__main__':
-    from misc.format.serialize import load_dict
-    traj = load_dict('data/traj.npz')
+    data = np.load('/tmp/traj.npy', allow_pickle=True)
+    traj = data.item()
     animate(traj)

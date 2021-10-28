@@ -1,8 +1,11 @@
 import casadi as ca
 
 
-
 def product(f, i1, i2):
+    R'''
+        find product of function `f` of integer arguments from `i1` to `i2`:
+        `f(i1) * f(i1+1) * ... * f(i2)`
+    '''
     P = 1
     for i in range(i1, i2+1):
         P = P * f(i)
@@ -10,6 +13,10 @@ def product(f, i1, i2):
 
 
 def sum(f, i1, i2):
+    R'''
+        find sum of function `f` of integer arguments from `i1` to `i2`:
+        `f(i1) + f(i1+1) + ... + f(i2)`
+    '''
     S = 0
     for i in range(i1, i2+1):
         S = S + f(i)
@@ -21,7 +28,7 @@ class Dynamics:
         The first car has 4 wheels;
         `phi` is the angle of the steering wheels (wrt x-axis of the first wheel) \
         `thetaI` is the orientation of I-th trailer \
-        `x,y` are thr cartesian coordinates of the centre of car's forward wheels \
+        `x,y` are the cartesian coordinates of the centre of car's forward wheels \
     '''
 
     def __init__(self, ntrailers):
@@ -64,3 +71,8 @@ class Dynamics:
         x = self.x - sum(lambda j: ca.cos(self.thetas[j]), 1, i)
         y = self.y - sum(lambda j: ca.sin(self.thetas[j]), 1, i)
         return x,y
+
+
+if __name__ == '__main__':
+    d = Dynamics(3)
+    print(d.rhs)

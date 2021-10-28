@@ -296,187 +296,73 @@ u_{1}= & \cos\theta_{0}\dot{x}+\sin\theta_{0}\dot{y}
 Переход из точки в точку
 \end_layout
 
-\begin_layout Standard
-Заданы начальное и конечное состояния системы в координатах 
-\begin_inset Formula $x,y,\phi,\theta_{1},\dots$
-\end_inset
-
-.
- Нужно выразить их через выход 
-\begin_inset Formula $x_{n},y_{n}$
-\end_inset
-
-.
-\end_layout
-
 \begin_layout Enumerate
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\strikeout off
-\xout off
-\uuline off
-\uwave off
-\noun off
-\color none
-Вычисляем 
-\begin_inset Formula $\theta_{n}=\arctan\frac{\dot{y}_{n}}{\dot{x}_{n}},\dot{\theta}_{n}=\frac{\partial\theta_{n}}{\partial\dot{x}_{n}}\ddot{x}_{n}+\frac{\partial\theta_{n}}{\partial\dot{y}_{n}}\ddot{y}_{n}$
+Заданы 
+\begin_inset Formula $\theta_{0},\theta_{1},\dots$
 \end_inset
 
+, 
+\begin_inset Formula $v$
+\end_inset
 
+ – скорость первой тележки
 \end_layout
 
 \begin_layout Enumerate
 Вычисляем 
-\begin_inset Formula $v_{n-1}=v_{n}+\left(\begin{array}{c}
--\sin\theta_{n}\\
-\cos\theta_{n}
-\end{array}\right)\dot{\theta}_{n}$
+\begin_inset Formula $v_{0}=v\left(\begin{array}{c}
+\cos\theta_{0}\\
+\sin\theta_{0}
+\end{array}\right)$
 \end_inset
 
-, подставив полученное ранее 
-\begin_inset Formula $\dot{\theta}_{n}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Enumerate
-Вычисляем 
-\begin_inset Formula $\theta_{n-1}=\arctan\frac{\dot{y}_{n-1}}{\dot{x}_{n-1}},$
-\end_inset
-
- и 
-\begin_inset Formula $\dot{\theta}_{n-1}$
-\end_inset
-
- аналогично
-\end_layout
-
-\begin_layout Enumerate
-Повторяем пункты 2,3 для 
-\begin_inset Formula $i=n-1..0$
-\end_inset
-
-, в итоге получим выражения для 
-\begin_inset Formula $\theta_{n},\theta_{n-1},\dots,\theta_{0}$
-\end_inset
-
- как функции 
-\begin_inset Formula $x_{n},y_{n}$
-\end_inset
-
- и их производных, а также 
-\begin_inset Formula $\dot{\theta}_{0}$
+ из 
+\begin_inset Formula $\tan\theta_{0}=\frac{v_{0}^{y}}{v_{0}^{x}}$
 \end_inset
 
 
 \end_layout
 
 \begin_layout Enumerate
-Вычисляем 
+Используем уравнения 
+\begin_inset Formula $v_{i-1}=v_{i}+\left(\begin{array}{c}
+-\sin\theta_{i}\\
+\cos\theta_{i}
+\end{array}\right)\dot{\theta}_{i}$
+\end_inset
+
+, 
+\begin_inset Formula $\tan\theta_{i}=\frac{v_{i}^{y}}{v_{i}^{x}}$
+\end_inset
+
+ для СЛУ 
 \begin_inset Formula 
 \begin{align*}
-x_{n} & =x-\sum_{j=1}^{n}\cos\theta_{j}\\
-y_{n} & =y-\sum_{j=1}^{n}\sin\theta_{j}
+\sin\theta_{i}v_{i}^{x}-\cos\theta_{i}v_{i}^{y} & =0\\
+v_{i}^{x}-\sin\theta_{i}\dot{\theta}_{i} & =v_{i-1}^{x}\\
+v_{i}^{y}+\cos\theta_{i}\dot{\theta}_{i} & =v_{i-1}^{y}
 \end{align*}
 
 \end_inset
 
-оно связывает желаемое положение тягача 
-\begin_inset Formula $x,y$
-\end_inset
+или 
+\begin_inset Formula 
+\[
+\left(\begin{array}{ccc}
+1 & 0 & -\sin\theta_{i}\\
+0 & 1 & \cos\theta_{i}\\
+\sin\theta_{i} & -\cos\theta_{i} & 0
+\end{array}\right)\cdot\left(\begin{array}{c}
+v_{i}^{x}\\
+v_{i}^{y}\\
+\dot{\theta}_{i}
+\end{array}\right)=\left(\begin{array}{c}
+v_{i-1}^{x}\\
+v_{i-1}^{y}\\
+0
+\end{array}\right)
+\]
 
- с выходом 
-\begin_inset Formula $x_{n},y_{n}$
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Enumerate
-\begin_inset Formula $\phi=$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Separator plain
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\tan\phi=\frac{\dot{\theta}_{0}}{u_{1}}=\frac{\dot{\theta}_{0}}{\cos\theta_{0}\dot{x}+\sin\theta_{0}\dot{y}}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\theta_{n}=\theta_{n}\left(v_{n}\right)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\dot{\theta}_{n}=\dot{\theta}_{n}\left(v_{n},\dot{v}_{n}\right)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $v_{n-1}=v_{n-1}\left(v_{n},\dot{v}_{n}\right)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\theta_{n-1}=\theta_{n-1}\left(v_{n},\ddot{v}_{n}\right)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\theta_{0}=\theta_{0}\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n\right)}\right)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\dot{\theta}_{0}=\dot{\theta}_{0}\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n+1\right)}\right)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $v_{0}=v_{0}\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n\right)}\right)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $u_{1}=u_{1}\left(\theta_{0},v_{0}\right)=u_{1}\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n\right)}\right)$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\phi=\phi\left(\dot{\theta}_{0},u_{1}\right)=\phi\left(v_{n},\dot{v}_{n},\dots,v_{n}^{\left(n+1\right)}\right)$
 \end_inset
 
 
@@ -487,25 +373,164 @@ y_{n} & =y-\sum_{j=1}^{n}\sin\theta_{j}
 \end_layout
 
 \begin_layout Standard
-получилось всего 
-\begin_inset Formula $n+1$
+\begin_inset Formula $v_{n}$
 \end_inset
 
- уравнение и 
-\begin_inset Formula $2\left(n+1\right)$
-\end_inset
-
- неизвестных, т.е.
- лишних 
-\begin_inset Formula $n+1$
-\end_inset
-
- уравнений
+ известно
 \end_layout
 
 \begin_layout Standard
-что если задать 
-\begin_inset Formula $\left\Vert v_{0}\right\Vert ,\left\Vert v_{1}\right\Vert ,\dots,\left\Vert v_{n}\right\Vert $
+\begin_inset Formula $v_{n-1}=v_{n}+\left(\begin{array}{c}
+-\sin\theta_{n}\\
+\cos\theta_{n}
+\end{array}\right)\dot{\theta}_{n}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $v_{n}^{x}\sin\theta_{n}=v_{n}^{y}\cos\theta_{n}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset space ~
 \end_inset
 
 

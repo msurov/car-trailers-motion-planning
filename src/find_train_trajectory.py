@@ -1,13 +1,14 @@
 from dynamics import Dynamics
-from bezier.bezier import interpolate, bezier2poly, eval_bezier, eval_bezier_length
+from bezier import interpolate, bezier2poly, eval_bezier, eval_bezier_length
 import numpy as np
 from scipy.interpolate import make_interp_spline
+from scipy.special import factorial
+from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
-from dynamics import Dynamics
-from time import time
+from transforms import get_flat_boundary_values, get_maps
+from numpy.polynomial.polynomial import polyval, polyder
+from casadi import Function
 
-
-t0 = time()
 
 def bezier2bspline(bzr):
     n,d,_ = bzr.shape
@@ -36,6 +37,25 @@ def interpolate_waypoints(waypts, k=5):
     bzr = interpolate(waypts, k)
     sp = bezier2bspline(bzr)
     return sp
+
+
+class PolyCurve:
+    def __init__(self, coefs, tspan):
+        self.coefs = coefs
+        self.t1, self.t2 = tspan
+
+    def __call__(self, t, nder=0):
+        if nder > 0:
+            p = polyder(self.coefs, nder)
+        elif nder == 0:
+            p = self.coefs
+        else:
+            assert False
+        return polyval(t, p, True).T
+
+
+def get_phase_trajectory(out : PolyCurve):
+    t = np.linspace(out.t1, out.t2, 100)
 
 
 def find_trajectory(waypts, ntrailers, reverse=False):
@@ -94,8 +114,6 @@ def find_trajectory(waypts, ntrailers, reverse=False):
 
 
 def test_trajectory(traj):
-    from misc.math.integrate import integrate
-
     ntrailers = traj['ntrailers']
     t = traj['t']
     x0 = traj['x0']
@@ -110,21 +128,21 @@ def test_trajectory(traj):
 
     def rhs(t, state):
         u = fu(t)
-        return dynamics.rhs(*state, *u)
+        r = dynamics.rhs(*state, *u)
+        r = np.reshape(r, (-1,))
+        return r
 
     state0 = [x0[0], y0[0], phi[0]] + list(thetas[:,0])
-    _, state = integrate(rhs, state0, [t[0], t[-1]], step=t[-1]/1000)
+    ans = solve_ivp(rhs, [t[0], t[-1]], state0, t_eval=t)
 
     plt.gca().set_prop_cycle(None)
-    plt.plot(state[:,0], state[:,1])
+    plt.plot(ans.y[0], ans.y[1])
     plt.gca().set_prop_cycle(None)
     plt.plot(x0, y0, '--')
     plt.show()
 
 
-if __name__ == '__main__':
-    from misc.format.serialize import save
-
+def test1():
     waypoints = [
         [0, 0],
         [3, 0],
@@ -133,8 +151,8 @@ if __name__ == '__main__':
         [0, 0],
     ]
 
-    traj = find_trajectory(waypoints, 1, True)
-    save('data/traj.npz', traj)
+    traj = find_trajectory(waypoints, 5, True)
+    np.save('/tmp/traj.npy', traj)
     test_trajectory(traj)
 
     plt.axis('equal')
@@ -142,3 +160,100 @@ if __name__ == '__main__':
         plt.plot(traj['x%d' % i], traj['y%d' % i], '.', alpha=0.1)
     plt.grid(True)
     plt.show()
+
+
+def test2():
+    np.set_printoptions(suppress=True, linewidth=200)
+
+    ntrailers = 5
+
+    pose1 = [
+        0., 0., 0., 0.0, 0., 0., 0.
+    ]
+
+    pose2 = [
+        5., 5., 0., 0.0, 0., 0., 0.
+    ]
+
+    out1, out2 = get_flat_boundary_values(pose1, pose2)
+
+    m,_ = out1.shape
+    neqs = 2*m
+    A = np.zeros((neqs, neqs))
+    for i in range(0, m):
+        A[i,i] = factorial(i)
+
+    for i in range(0, m):
+        for j in range(i, 2*m):
+            A[m+i,j] = factorial(j) / factorial(j - i)
+
+    B = np.zeros((neqs, 2))
+    for i in range(0, m):
+        B[i,:] = out1[i,:]
+        B[m+i,:] = out2[i,:]
+
+    coefs = np.linalg.solve(A, B)
+
+    t = np.linspace(0, 1, 100)
+    nt = len(t)
+    exprs = get_maps(ntrailers)
+
+    nderivatives,_ = exprs['output'].shape
+
+    args = exprs['output'].T.reshape((-1,1))
+    # u1 = Function('u1', [args], [exprs['u1']])
+    # u2 = Function('u2', [args], [exprs['u2']])
+    phi = Function('phi', [args], [exprs['phi']])
+    theta0 = Function('theta0', [args], [exprs['theta0']])
+    theta1 = Function('theta1', [args], [exprs['theta1']])
+    theta2 = Function('theta2', [args], [exprs['theta2']])
+    theta3 = Function('theta3', [args], [exprs['theta3']])
+    theta4 = Function('theta4', [args], [exprs['theta4']])
+    x = Function('x', [args], [exprs['x']])
+    y = Function('y', [args], [exprs['y']])
+
+    theta0_vals = np.zeros(nt)
+    theta1_vals = np.zeros(nt)
+    theta2_vals = np.zeros(nt)
+    theta3_vals = np.zeros(nt)
+    theta4_vals = np.zeros(nt)
+    x_vals = np.zeros(nt)
+    y_vals = np.zeros(nt)
+    phi_vals = np.zeros(nt)
+
+    for i in range(nt):
+        output = np.zeros((nderivatives, 2))
+        output[0,:] = polyval(t[i], coefs)
+
+        for j in range(1, nderivatives):
+            p = polyder(coefs,j)
+            output[j,:] = polyval(t[i], p)
+
+        a = np.reshape(output, (-1,))
+        theta0_vals[i] = theta0(a)
+        theta1_vals[i] = theta1(a)
+        theta2_vals[i] = theta2(a)
+        theta3_vals[i] = theta3(a)
+        theta4_vals[i] = theta4(a)
+        phi_vals[i] = phi(a)
+        x_vals[i] = x(a)
+        y_vals[i] = y(a)
+
+    traj = {
+        'ntrailers': ntrailers,
+        't': t,
+        'phi': phi_vals,
+        'x0': x_vals,
+        'y0': y_vals,
+        'theta0': theta0_vals,
+        'theta1': theta1_vals,
+        'theta2': theta2_vals,
+        'theta3': theta3_vals,
+        'theta4': theta4_vals
+    }
+
+    np.save('/tmp/traj.npy', traj)
+
+
+if __name__ == '__main__':
+    test1()
