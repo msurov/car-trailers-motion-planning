@@ -87,6 +87,16 @@ def get_maps(ntrailers):
     return result
 
 def gen_equations(ntrailers):
+    R'''
+        evaluates expressions for all the
+        phase variables as functions of outputs `y`
+
+        `result`:
+            `phi` = `phi(y)` steering wheel angular position
+            `thetas` = `thetas(y)` angular relative pisitions of the trailers
+            `velocities` = `velocities(y)` linear velocities of the trailers
+            `out` are the outputs `y` and their derivatives
+    '''
     out = SX.sym('y', 2 * (ntrailers + 1))
     args = out[:-2]
     dargs = out[2:]

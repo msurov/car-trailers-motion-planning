@@ -145,9 +145,9 @@ def test_trajectory(traj):
 def test1():
     waypoints = [
         [0, 0],
-        [3, 0],
-        [3, 3],
-        [0, 3],
+        [5, 0],
+        [5, 5],
+        [0, 5],
         [0, 0],
     ]
 
@@ -171,8 +171,12 @@ def test2():
         0., 0., 0., 0.0, 0., 0., 0.
     ]
 
+    # pose2 = [
+    #     5., 5., 0, 0, 0, 0, 0
+    # ]
+
     pose2 = [
-        5., 5., 0., 0.0, 0., 0., 0.
+        5., 8., 0., 1.57, 1.57, 1.57, 1.57
     ]
 
     out1, out2 = get_flat_boundary_values(pose1, pose2)
@@ -194,7 +198,7 @@ def test2():
 
     coefs = np.linalg.solve(A, B)
 
-    t = np.linspace(0, 1, 100)
+    t = np.linspace(0, 1, 600)
     nt = len(t)
     exprs = get_maps(ntrailers)
 
@@ -256,4 +260,4 @@ def test2():
 
 
 if __name__ == '__main__':
-    test1()
+    test2()

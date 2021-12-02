@@ -294,7 +294,7 @@ def animate(traj):
         return patches
 
     def update(frameidx):
-        i = frameidx
+        i = 2*frameidx
         cartrailers.move(x0[i], y0[i], phi[i], thetas[i,:])
         return cartrailers.patches()
 
