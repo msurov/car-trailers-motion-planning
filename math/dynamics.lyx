@@ -80,7 +80,11 @@
 \end_layout
 
 \begin_layout Standard
-Общие уравнения кинематики тележки с N прицепами
+Общие уравнения кинематики тягача с 
+\begin_inset Formula $N$
+\end_inset
+
+ прицепами
 \end_layout
 
 \begin_layout Standard
@@ -95,6 +99,38 @@
 
 \end_inset
 
+
+\begin_inset Formula $x,y$
+\end_inset
+
+ – положение центра задней оси тягача; 
+\begin_inset Formula $\theta_{0}$
+\end_inset
+
+ – ориентация тягача относительно мировой СК; 
+\begin_inset Formula $u_{1}$
+\end_inset
+
+ – скорость тягача; 
+\begin_inset Formula $\phi$
+\end_inset
+
+ – угол поворота передних колёс тягача; 
+\begin_inset Formula $u_{2}$
+\end_inset
+
+ – скорость изменения угла поворота передних колёс; 
+\begin_inset Formula $\theta_{i}$
+\end_inset
+
+ – ориентация 
+\begin_inset Formula $i$
+\end_inset
+
+-го прицепа относительно мировой СК.
+\end_layout
+
+\begin_layout Standard
 Для 
 \begin_inset Formula $N=3$
 \end_inset
@@ -120,56 +156,13 @@
 \end_inset
 
 -го прицепа 
-\begin_inset Formula $\theta_{-1}=\arctan\frac{\dot{y}_{-1}}{\dot{x}_{-1}}=\arctan\frac{\dot{y}_{0}-\cos\theta_{0}\dot{\theta}_{0}}{\dot{x}_{0}-\sin\theta_{0}\dot{\theta}_{0}}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\dot{x}_{-1}=\dot{x}_{0}-\sin\theta_{0}\dot{\theta}_{0}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\dot{y}_{-1}=\dot{y}_{0}-\cos\theta_{0}\dot{\theta}_{0}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-—
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\phi=\arctan\frac{\dot{\theta}_{0}}{u_{1}}=\arctan\frac{\dot{\theta}_{0}}{\dot{x}_{0}\cos\theta_{0}+\dot{y}_{0}\sin\theta_{0}}=$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\frac{\dot{\theta}_{0}}{\dot{x}_{0}\cos\theta_{0}+\dot{y}_{0}\sin\theta_{0}}\sim\frac{\dot{y}_{0}-\cos\theta_{0}\dot{\theta}_{0}}{\dot{x}_{0}-\sin\theta_{0}\dot{\theta}_{0}}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $\dot{\theta}_{0}\dot{x}_{0}\left(1+\cos^{2}\theta_{0}\right)-\left(\dot{\theta}_{0}^{2}+\dot{y}_{0}^{2}\right)\sin\theta_{0}=\left(\dot{x}_{0}-\dot{\theta}_{0}\sin\theta_{0}\right)\dot{y}_{0}\cos\theta_{0}$
-\end_inset
-
-
 \begin_inset Formula 
 \begin{align*}
 p_{i} & =\left(\begin{array}{c}
 x-\sum_{j=1}^{i}\cos\theta_{j}\\
 y-\sum_{j=1}^{i}\sin\theta_{j}
 \end{array}\right)\\
-p_{i} & =p_{i+1}+\left(\begin{array}{c}
+ & =p_{i+1}+\left(\begin{array}{c}
 \cos\theta_{i+1}\\
 \sin\theta_{i+1}
 \end{array}\right)
@@ -372,25 +365,106 @@ v_{i-1}^{y}\\
 —
 \end_layout
 
-\begin_layout Standard
-\begin_inset Formula $v_{n}$
+\begin_layout Subsection
+Найти полином 
+\begin_inset Formula $p(x)$
 \end_inset
 
- известно
+, удовлетворяющий граничным условиям
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula $v_{n-1}=v_{n}+\left(\begin{array}{c}
--\sin\theta_{n}\\
-\cos\theta_{n}
-\end{array}\right)\dot{\theta}_{n}$
-\end_inset
-
-
+Условия:
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula $v_{n}^{x}\sin\theta_{n}=v_{n}^{y}\cos\theta_{n}$
+\begin_inset Formula 
+\begin{align*}
+p\left(0\right) & =l_{0}\\
+p'\left(0\right) & =l_{1}\\
+\vdots\\
+p\left(1\right) & =r_{0}\\
+p'\left(1\right) & =r_{1}\\
+\vdots
+\end{align*}
+
+\end_inset
+
+Полином представляем в виде 
+\begin_inset Formula 
+\[
+p\left(x\right)=\sum_{n=0}^{N}a_{n}x^{n}
+\]
+
+\end_inset
+
+Его 
+\begin_inset Formula $k$
+\end_inset
+
+-я производная 
+\begin_inset Formula 
+\begin{align*}
+p^{\left(k\right)}\left(x\right) & =\sum_{n=k}^{N}n\cdot\left(n-1\right)\cdot\dots\cdot\left(n-k+1\right)a_{n}x^{n-k}\\
+ & =\sum_{n=k}^{N}\frac{n!}{\left(n-k\right)!}a_{n}x^{n-k}
+\end{align*}
+
+\end_inset
+
+Тогда 
+\begin_inset Formula 
+\[
+p^{\left(k\right)}\left(0\right)=k!a_{k}=l_{k}
+\]
+
+\end_inset
+
+и 
+\begin_inset Formula 
+\[
+p^{\left(k\right)}\left(1\right)=\sum_{n=k}^{N}\frac{n!}{\left(n-k\right)!}a_{n}=r_{k}
+\]
+
+\end_inset
+
+В матричном представлении 
+\begin_inset Formula 
+\[
+\left(\begin{array}{ccccccc}
+1\\
+ & 1\\
+ &  & 2\\
+ &  &  & \ddots\\
+ &  &  &  & N!
+\end{array}\right)a=\left(\begin{array}{c}
+l_{0}\\
+l_{1}\\
+l_{2}\\
+\vdots\\
+l_{N}
+\end{array}\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\left(\begin{array}{ccccccc}
+1 & 1 & 1 & 1 & 1\\
+0 & 1 & 2 & 3 & 4\\
+0 & 0 & 2 & 6 & 12 & \dots\\
+\\
+\\
+\end{array}\right)a=\left(\begin{array}{c}
+r_{0}\\
+r_{1}\\
+r_{2}\\
+\vdots\\
+r_{N}
+\end{array}\right)
+\]
+
 \end_inset
 
 

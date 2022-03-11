@@ -1,15 +1,10 @@
 from matplotlib.patches import Rectangle, Polygon, Circle
 import matplotlib.pyplot as plt
-import matplotlib
 import numpy as np
 from matplotlib import animation
 from matplotlib.colors import LinearSegmentedColormap
+from scipy.interpolate import make_interp_spline
 
-font = {'size': 16}
-matplotlib.rc('font', **font)
-matplotlib.rcParams['pdf.fonttype'] = 42
-matplotlib.rcParams['ps.fonttype'] = 42
-matplotlib.rcParams['text.usetex'] = True
 
 trailers_colors = [
     'forestgreen',
@@ -80,13 +75,21 @@ def axis():
 
 
 class Part:
-    def __init__(self, cont, color, parent):
+    def __init__(self, cont, color, parent, alpha=0.8):
         self.parent = parent
         self.pts = cont
-        self.poly = Polygon(cont, True, zorder=3, alpha=0.6, color=color)
+        self.poly = Polygon(cont, True, zorder=3, alpha=alpha, color=color)
         self.x = 0.0
         self.y = 0.0
         self.a = 0.0
+
+    @property
+    def alpha(self):
+        return self.poly.alpha
+
+    @alpha.setter
+    def alpha(self, value):
+        self.poly.alpha = value
 
     def move(self, x=0, y=0, a=0):
         R'''
@@ -125,18 +128,19 @@ def car_body_points():
 
 
 class Trailer:
-    def __init__(self, color):
+    def __init__(self, color, grayed=False):
         self.x = 0
         self.y = 0
         self.a = 0
         self.d = 0.4
-        wheel1 = Part(wheel_contour(), 'black', self)
+        alpha = 0.2 if grayed else 0.8
+        wheel1 = Part(wheel_contour(), 'black', self, alpha=alpha)
         wheel1.move(y=self.d)
-        wheel2 = Part(wheel_contour(), 'black', self)
+        wheel2 = Part(wheel_contour(), 'black', self, alpha=alpha)
         wheel2.move(y=-self.d, a=np.pi)
-        body = Part(trailer_body_points(), color, self)
-        o = Part(circle(0, 0, 0.1), 'black', self)
-        a = Part(axis(), 'black', self)
+        body = Part(trailer_body_points(), color, self, alpha=alpha)
+        o = Part(circle(0, 0, 0.1), 'black', self, alpha=alpha)
+        a = Part(axis(), 'black', self, alpha=alpha)
         self.parts = [wheel1, wheel2, body, o, a]
 
     def move(self, x, y, theta):
@@ -151,7 +155,7 @@ class Trailer:
 
 
 class Car:
-    def __init__(self, color):
+    def __init__(self, color, grayed=False):
         self.x = 0
         self.y = 0
         self.a = 0
@@ -160,23 +164,25 @@ class Car:
         self.b = 1.0
         self.d = 0.4
 
-        wheel1 = Part(wheel_contour(), 'black', self)
+        alpha = 0.2 if grayed else 0.8
+
+        wheel1 = Part(wheel_contour(), 'black', self, alpha=alpha)
         wheel1.move(y=self.d)
-        wheel2 = Part(wheel_contour(), 'black', self)
+        wheel2 = Part(wheel_contour(), 'black', self, alpha=alpha)
         wheel2.move(y=-self.d, a = np.pi)
 
-        wheel3 = Part(wheel_contour(), 'black', self)
+        wheel3 = Part(wheel_contour(), 'black', self, alpha=alpha)
         wheel3.move(y=self.d, x=self.b)
-        wheel4 = Part(wheel_contour(), 'black', self)
+        wheel4 = Part(wheel_contour(), 'black', self, alpha=alpha)
         wheel4.move(y=-self.d, x=self.b, a=np.pi)
 
-        body = Part(car_body_points(), color, self)
+        body = Part(car_body_points(), color, self, alpha=alpha)
 
-        a1 = Part(axis(), 'black', self)
-        a2 = Part(axis(), 'black', self)
+        a1 = Part(axis(), 'black', self, alpha=alpha)
+        a2 = Part(axis(), 'black', self, alpha=alpha)
         a2.move(x=self.b)
 
-        o = Part(circle(0, 0, 0.1), 'black', self)
+        o = Part(circle(0, 0, 0.1), 'black', self, alpha=alpha)
 
         self.parts = [wheel1, wheel2, wheel3, wheel4, body, a1, a2, o]
 
@@ -204,16 +210,16 @@ class Car:
 class CarTrailers:
     def __init__(self, ntrailers, grayed=False):
         if grayed:
-            self.car = Car('gray')
-            self.trailers = [Trailer('gray') for i in range(1, ntrailers)]
+            self.car = Car('gray', grayed=True)
+            self.trailers = [Trailer('gray', grayed=True) for i in range(1, ntrailers)]
         else:
             self.car = Car(trailers_colors[0])
             self.trailers = [Trailer(trailers_colors[i]) for i in range(1, ntrailers)]
         self.move(0, 0, 0, np.zeros(ntrailers))
-    
-    def get_trailer_pose(self, i, x0, y0, phi, thetas):
-        dx = np.sum([np.cos(thetas[j]) for j in range(1, i+1)])
-        dy = np.sum([np.sin(thetas[j]) for j in range(1, i+1)])
+
+    def get_trailer_pose(self, i, x0, y0, thetas):
+        dx = np.sum(np.cos(thetas[1:i+1]))
+        dy = np.sum(np.sin(thetas[1:i+1]))
         return x0 - dx, y0 - dy, thetas[i]
 
     def move(self, x0, y0, phi, thetas):
@@ -221,7 +227,7 @@ class CarTrailers:
         self.car.move(x0, y0, thetas[0], phi)
 
         for i in range(1, ntrailers):
-            x,y,theta = self.get_trailer_pose(i, x0, y0, phi, thetas)
+            x,y,theta = self.get_trailer_pose(i, x0, y0, thetas)
             self.trailers[i-1].move(x, y, theta)
 
     def patches(self):
@@ -231,60 +237,66 @@ class CarTrailers:
         return patches
 
 
-def animate(traj):
+def to_cartesian(x, y, thetas):
+    '''
+        Returns cartesian trajectories of the trails
+    '''
+    ntrailers, nt = np.shape(thetas)
+    trailers = np.zeros((ntrailers, nt, 2), float)
+    trailers[0,:,0] = x
+    trailers[0,:,1] = y
+
+    for i in range(1, ntrailers):
+        trailers[i,:,0] = trailers[i-1,:,0] - np.cos(thetas[i])
+        trailers[i,:,1] = trailers[i-1,:,1] - np.sin(thetas[i])
+
+    return trailers
+
+
+def animate(traj, fps=60, animtime=None, speedup=None, filepath=None):
     ntrailers = traj['ntrailers']
-    cartrailers = CarTrailers(ntrailers)
 
     t = traj['t']
-    x0 = traj['x0']
-    y0 = traj['y0']
+    x = traj['x']
+    y = traj['y']
+
     phi = traj['phi']
-    thetas = np.array([traj['theta%d' % i] for i in range(ntrailers)]).T
+    thetas = np.array(traj['theta'])
     npts = len(t)
 
-    xs = []
-    ys = []
+    trailers = to_cartesian(x, y, thetas)
 
-    kx = 'x0'
-    ky = 'y0'
-    i = 0
+    xmin = np.min(trailers[:,:,0]) - ntrailers
+    xmax = np.max(trailers[:,:,0]) + ntrailers
+    ymin = np.min(trailers[:,:,1]) - ntrailers
+    ymax = np.max(trailers[:,:,1]) + ntrailers
 
-    while kx in traj:
-        xs += [traj[kx]]
-        ys += [traj[ky]]
-        i = i + 1
-        kx = 'x%d' % i
-        ky = 'y%d' % i
-
-    xmin = np.min(np.concatenate(xs)) - ntrailers
-    xmax = np.max(np.concatenate(xs)) + ntrailers
-    ymin = np.min(np.concatenate(ys)) - ntrailers
-    ymax = np.max(np.concatenate(ys)) + ntrailers
-
-    fig = plt.figure(figsize=(12,9))
+    # fig = plt.figure(figsize=(16,9))
+    fig = plt.figure(figsize=(8,4))
     plt.axis('equal')
     ax = plt.gca()
-    plt.grid()
+    plt.grid(True)
 
     ax.set_xlim([xmin, xmax])
     ax.set_ylim([ymin, ymax])
 
-    for i in range(len(xs)):
-        plt.plot(xs[i], ys[i], '.', alpha=0.1, color=trailers_colors[i])
+    for i in range(ntrailers):
+        plt.plot(trailers[i,:,0], trailers[i,:,1], '.', alpha=0.1, color=trailers_colors[i])
 
+    cartrailers = CarTrailers(ntrailers)
     pathes = cartrailers.patches()
-    cartrailers.move(x0[0], y0[0], phi[0], thetas[0,:])
+    cartrailers.move(x[0], y[0], phi[0], thetas[:,0])
 
     for p in pathes:
         ax.add_patch(p)
 
     cartrailers0 = CarTrailers(ntrailers, grayed=True)
-    cartrailers0.move(x0[0], y0[0], phi[0], thetas[0,:])
+    cartrailers0.move(x[0], y[0], phi[0], thetas[:,0])
     for p in cartrailers0.patches():
         ax.add_patch(p)
 
     cartrailersf = CarTrailers(ntrailers, grayed=True)
-    cartrailersf.move(x0[-1], y0[-1], phi[-1], thetas[-1,:])
+    cartrailersf.move(x[-1], y[-1], phi[-1], thetas[:,-1])
     for p in cartrailersf.patches():
         ax.add_patch(p)
 
@@ -292,20 +304,45 @@ def animate(traj):
         patches = cartrailers.patches()
         [ax.add_patch(p) for p in patches]
         return patches
+    
+    state = np.zeros((len(t), ntrailers + 3))
+    state[:,0] = x
+    state[:,1] = y
+    state[:,2] = phi
+    state[:,3:] = thetas.T
+    sp = make_interp_spline(t, state, k=1)
 
-    def update(frameidx):
-        i = 2*frameidx
-        cartrailers.move(x0[i], y0[i], phi[i], thetas[i,:])
+    def update(i):
+        x,y,phi,*thetas = sp(t[0] + i * speedup / fps)
+        cartrailers.move(x, y, phi, thetas)
         return cartrailers.patches()
+    
+    if speedup is not None:
+        assert speedup > 0
+        nframes = int((t[-1] - t[0]) * fps / speedup)
+    elif animtime is not None:
+        assert animtime > 0
+        nframes = int(animtime * fps)
+        speedup = (t[-1] - t[0]) / animtime
+    else:
+        nframes = int((t[-1] - t[0]) * fps)
+        speedup = 1
+    
+    fig.subplots_adjust(bottom=0.04, top=0.99, left=0.04, right=0.99,)
 
-    anim = animation.FuncAnimation(fig, update, init_func=init, frames=npts, blit=True)
-    # Writer = animation.writers['ffmpeg']
-    # writer = Writer(fps=60, metadata=dict(artist='Maksim Surov'), bitrate=400*60)
-    # anim.save('data/anim.mp4', writer)
-    plt.show()
+    anim = animation.FuncAnimation(fig, update, init_func=init, frames=nframes, blit=True)
+    if filepath is not None:
+        if filepath.endswith('.gif'):
+            writer='imagemagick'
+        else:
+            Writer = animation.writers['ffmpeg']
+            writer = Writer(fps=60, metadata=dict(artist='Maksim Surov'), bitrate=400*60)
+        anim.save(filepath, writer)
+    else:
+        plt.show()
 
 
 if __name__ == '__main__':
-    data = np.load('/tmp/traj.npy', allow_pickle=True)
+    data = np.load('/tmp/traj-1.npy', allow_pickle=True)
     traj = data.item()
-    animate(traj)
+    animate(traj, animtime=5, filepath='/tmp/anim-1.gif')

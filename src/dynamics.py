@@ -1,4 +1,5 @@
 import casadi as ca
+import numpy as np
 
 
 def product(f, i1, i2):
