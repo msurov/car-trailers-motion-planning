@@ -110,7 +110,7 @@ def test_trajectory(traj):
 
 def trajectory_through_waypoints(waypts, ntrailers, reverse=False):
     R'''
-        TODO: implement for arbitrary trailers
+        `waypts` is an array of Cartesian waypoints to follow through \
     '''
     assert ntrailers > 0
     delta = np.pi if reverse else 0
@@ -192,7 +192,7 @@ def trajectory_2pts(initial_state, final_state):
     poly1 = make_poly_bv(flat_val1[:,0], flat_val2[:,0])
     poly2 = make_poly_bv(flat_val1[:,1], flat_val2[:,1])
 
-    t = np.linspace(0, 1, 200)
+    t = np.linspace(0, 1, 1000)
     poly = make_poly_bv([0, 0], [1, 0])
     s = polyval(t, poly)
     nderivs = flat.flat_derivs.shape[0] - 1
@@ -223,9 +223,21 @@ def trajectory_2pts(initial_state, final_state):
 def test1():
     st1 = [0, 0, 0, np.pi/2, np.pi/2, np.pi/2, np.pi/2]
     st2 = [7, -2, 0, -np.pi/2, -np.pi/2, -np.pi/2, -np.pi/2]
+
     traj = trajectory_2pts(st1, st2)
     test_trajectory(traj)
     np.save(join(tempfile.gettempdir(), 'traj-1.npy'), traj)
+
+
+def reverse_trajectory(traj):
+    return {
+        'x': traj['x'][::-1],
+        'y': traj['y'][::-1],
+        'phi': traj['phi'][::-1],
+        'theta': traj['theta'][:,::-1],
+        'u1': -traj['u1'][::-1],
+        'u2': -traj['u2'][::-1],
+    }
 
 
 def test2():
@@ -242,5 +254,5 @@ def test2():
 
 
 if __name__ == '__main__':
-    test1()
-    # test2()
+    # test1()
+    test2()

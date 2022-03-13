@@ -347,8 +347,8 @@ def animate(traj, fps=60, animtime=None, speedup=None, filepath=None):
 if __name__ == '__main__':
     datadir = tempfile.gettempdir()
     data = np.load(
-        join(datadir, 'traj-1.npy'),
+        join(datadir, 'traj-2.npy'),
         allow_pickle=True
     )
     traj = data.item()
-    animate(traj, animtime=5, filepath=join(datadir, 'anim-1.gif'))
+    animate(traj, animtime=5)
