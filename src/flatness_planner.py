@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from flat_coordinates import eval_flat_derivs, get_flat_maps
 from numpy.polynomial.polynomial import polyval, polyder
 from casadi import Function, vcat, DM
+import tempfile
+from os.path import join
 
 
 def bezier2bspline(bzr):
@@ -219,11 +221,11 @@ def trajectory_2pts(initial_state, final_state):
 
 
 def test1():
-    st1 = [0, 0, 0, 0, 0, 0, 0]
-    st2 = [-2, 5, 0, np.pi, np.pi, np.pi, np.pi]
+    st1 = [0, 0, 0, np.pi/2, np.pi/2, np.pi/2, np.pi/2]
+    st2 = [7, -2, 0, -np.pi/2, -np.pi/2, -np.pi/2, -np.pi/2]
     traj = trajectory_2pts(st1, st2)
     test_trajectory(traj)
-    np.save('/tmp/traj-1.npy', traj)
+    np.save(join(tempfile.gettempdir(), 'traj-1.npy'), traj)
 
 
 def test2():
@@ -236,7 +238,7 @@ def test2():
     ]
     traj = trajectory_through_waypoints(waypts, 3)
     test_trajectory(traj)
-    np.save('/tmp/traj-2.npy', traj)
+    np.save(join(tempfile.gettempdir(), 'traj-2.npy'), traj)
 
 
 if __name__ == '__main__':

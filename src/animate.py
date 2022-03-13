@@ -4,6 +4,8 @@ import numpy as np
 from matplotlib import animation
 from matplotlib.colors import LinearSegmentedColormap
 from scipy.interpolate import make_interp_spline
+import tempfile
+from os.path import join
 
 
 trailers_colors = [
@@ -328,7 +330,7 @@ def animate(traj, fps=60, animtime=None, speedup=None, filepath=None):
         nframes = int((t[-1] - t[0]) * fps)
         speedup = 1
     
-    fig.subplots_adjust(bottom=0.04, top=0.99, left=0.04, right=0.99,)
+    fig.subplots_adjust(bottom=0.06, top=0.99, left=0.06, right=0.99,)
 
     anim = animation.FuncAnimation(fig, update, init_func=init, frames=nframes, blit=True)
     if filepath is not None:
@@ -343,6 +345,10 @@ def animate(traj, fps=60, animtime=None, speedup=None, filepath=None):
 
 
 if __name__ == '__main__':
-    data = np.load('/tmp/traj-1.npy', allow_pickle=True)
+    datadir = tempfile.gettempdir()
+    data = np.load(
+        join(datadir, 'traj-1.npy'),
+        allow_pickle=True
+    )
     traj = data.item()
-    animate(traj, animtime=5, filepath='/tmp/anim-1.gif')
+    animate(traj, animtime=5, filepath=join(datadir, 'anim-1.gif'))
